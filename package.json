@@ -1,6 +1,6 @@
 {
   "name": "@zakodium/adonis-authorization",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Authorization provider for AdonisJS 5",
   "main": "./lib/providers/AuthorizationProvider.js",
   "types": "./lib/src/types.d.ts",
