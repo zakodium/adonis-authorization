@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./lib",
+    "inlineSourceMap": true,
+    "strict": true,
+    "target": "es2019",
+    "strictFunctionTypes": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "skipLibCheck": true,
+    "types": ["@adonisjs/core", "@adonisjs/auth", "@types/jest"]
+  },
+  "include": ["./commands/**/*", "./src/**/*", "./providers/**/*"]
+}
