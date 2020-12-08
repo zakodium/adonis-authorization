@@ -1,4 +1,6 @@
-import { GateDefinition, GateOptions } from './GateDefinition';
+import { GateOptions } from '@ioc:Adonis/Addons/Authorization';
+
+import { GateDefinition } from './GateDefinition';
 
 export default function gateDecorator(options?: GateOptions) {
   const definition = new GateDefinition(options);

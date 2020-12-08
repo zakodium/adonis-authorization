@@ -15,5 +15,10 @@
     "skipLibCheck": true,
     "types": ["@adonisjs/core", "@adonisjs/auth", "@types/jest"]
   },
-  "include": ["./commands/**/*", "./src/**/*", "./providers/**/*"]
+  "include": [
+    "./commands/**/*",
+    "./src/**/*",
+    "./providers/**/*",
+    "./test-typings.d.ts"
+  ]
 }

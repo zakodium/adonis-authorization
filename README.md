@@ -20,13 +20,14 @@ npm i @zakodium/adonis-authorization
 node ace invoke @zakodium/adonis-authorization
 ```
 
-## Usage
+## Documentation
 
 TODO
 
-## Configuration
+## Unimplemented for now while present in Laravel
 
-TODO
+- [Gate Responses](https://laravel.com/docs/8.x/authorization#gate-responses)
+- [Intercepting Gate Checks](https://laravel.com/docs/8.x/authorization#intercepting-gate-checks)
 
 ## License
 
