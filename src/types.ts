@@ -9,16 +9,25 @@ declare module '@ioc:Adonis/Addons/Authorization' {
   export type Constructor = new (...args: unknown[]) => unknown;
 
   export interface UserGateContractWithoutResource {
+    /**
+     * Returns whether the specified global action is allowed.
+     */
     allows<Action extends keyof GlobalActions>(
       action: Action,
       ...args: GlobalActions[Action]
     ): Promise<boolean>;
 
+    /**
+     * Returns whether the specified global action is denied (opposite of allows).
+     */
     denies<Action extends keyof GlobalActions>(
       action: Action,
       ...args: GlobalActions[Action]
     ): Promise<boolean>;
 
+    /**
+     * Throws if the specified global action is denied.
+     */
     authorize<Action extends keyof GlobalActions>(
       action: Action,
       ...args: GlobalActions[Action]
@@ -28,7 +37,10 @@ declare module '@ioc:Adonis/Addons/Authorization' {
 
     // TODO: infer T from the type of resource
     /* for<T extends Constructor>() */
-    for(resource: unknown): UserGateContractWithResource;
+    /**
+     * If a policy was defined for the specified resource, returns a gate scoped to it.
+     */
+    for<T extends object>(resource: T): UserGateContractWithResource;
   }
 
   // TODO: enable additional arguments
@@ -40,6 +52,9 @@ declare module '@ioc:Adonis/Addons/Authorization' {
   */
   export interface UserGateContractWithResource {
     // <PolicyMethod extends keyof InstanceType<PolicyConstructor>>
+    /**
+     * Returns whether the action is allowed on the resource.
+     */
     allows(
       action: string /*: PolicyMethod*/,
       ...args: unknown[]
@@ -47,6 +62,9 @@ declare module '@ioc:Adonis/Addons/Authorization' {
     Promise<boolean>;
 
     // <PolicyMethod extends keyof InstanceType<PolicyConstructor>>
+    /**
+     * Returns whether the action is denied on the resource (opposite of allows).
+     */
     denies(
       action: string /*: PolicyMethod*/,
       args: unknown[],
@@ -56,6 +74,9 @@ declare module '@ioc:Adonis/Addons/Authorization' {
     ): Promise<boolean>;
 
     // <PolicyMethod extends keyof InstanceType<PolicyConstructor>>
+    /**
+     * Throws if the specified global action is denied on the resource.
+     */
     authorize(
       action: string /*: PolicyMethod*/,
       args: unknown[],
@@ -72,7 +93,7 @@ declare module '@ioc:Adonis/Addons/Authorization' {
     TTarget extends {
       [K in TKey]: (
         user: PropType,
-        ...otherArgs: unknown[]
+        ...otherArgs: any[]
       ) => boolean | Promise<boolean>;
     }
   >(
@@ -147,6 +168,9 @@ declare module '@ioc:Adonis/Core/HttpContext' {
   import { UserGateContractWithoutResource } from '@ioc:Adonis/Addons/Authorization';
 
   interface HttpContextContract {
+    /**
+     * Gate for authorizing user actions.
+     */
     gate: UserGateContractWithoutResource;
   }
 }
