@@ -1,3 +1,5 @@
+import { Exception } from '@poppinss/utils';
+
 import {
   GateOptions,
   GateOptionsWithGuest,
@@ -10,7 +12,7 @@ export class GateDefinition {
     const { allowGuest = false } = options;
 
     if (typeof allowGuest !== 'boolean') {
-      throw new TypeError('options.allowGuest must be a boolean');
+      throw new Exception('options.allowGuest must be a boolean');
     }
 
     this.isGuestAllowed = allowGuest;

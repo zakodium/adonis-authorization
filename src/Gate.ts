@@ -1,4 +1,6 @@
-import {
+import { Exception } from '@poppinss/utils';
+
+import type {
   Constructor,
   GateCallbackUserOrGuest,
   GateOptions,
@@ -11,6 +13,7 @@ import {
   UserGateContractWithoutResource,
 } from '@ioc:Adonis/Addons/Authorization';
 
+import { AuthorizationException } from './Exceptions';
 import { GateDefinition } from './GateDefinition';
 
 export default class Gate implements GateContract {
@@ -43,19 +46,21 @@ export default class Gate implements GateContract {
     options: GateOptionsWithGuest | GateOptions = {},
   ) {
     if (typeof action !== 'string') {
-      throw new TypeError('action must be a string');
+      throw new Exception('action must be a string');
     }
 
     if (typeof gate !== 'function') {
-      throw new TypeError('gate must be a function');
+      throw new Exception('gate must be a function');
     }
 
     if (typeof options !== 'object' || options === null) {
-      throw new TypeError('options must be an object');
+      throw new Exception('options must be an object');
     }
 
     if (this.actions.has(action)) {
-      throw new Error(`a gate is already defined for the action "${action}"`);
+      throw new Exception(
+        `a gate is already defined for the action "${action}"`,
+      );
     }
 
     this.actions.set(action, {
@@ -66,24 +71,24 @@ export default class Gate implements GateContract {
 
   public registerPolicies(policies: Array<[Constructor, Constructor]>): void {
     if (!Array.isArray(policies)) {
-      throw new TypeError('policies must be an array');
+      throw new Exception('policies must be an array');
     }
 
     for (let i = 0; i < policies.length; i++) {
       const policyTuple = policies[i];
       if (!Array.isArray(policyTuple) || policyTuple.length !== 2) {
-        throw new TypeError(`policies.${i} must be a tuple`);
+        throw new Exception(`policies.${i} must be a tuple`);
       }
       const [Resource, Policy] = policyTuple;
       if (typeof Resource !== 'function') {
-        throw new TypeError(`policies.${i}.0 must be a constructor`);
+        throw new Exception(`policies.${i}.0 must be a constructor`);
       }
       if (typeof Policy !== 'function') {
-        throw new TypeError(`policies.${i}.1 must be a constructor`);
+        throw new Exception(`policies.${i}.1 must be a constructor`);
       }
 
       if (this.policies.has(Resource)) {
-        throw new Error(
+        throw new Exception(
           `a policy is already defined for the resource "${Resource.name}"`,
         );
       }
@@ -111,11 +116,11 @@ export default class Gate implements GateContract {
       }
       const result = await actionData.callback(user, ...args);
       if (typeof result !== 'boolean') {
-        throw new Error('Gates must return boolean values');
+        throw new Exception('Gates must return boolean values');
       }
       return result;
     }
-    throw new Error(`Found no action callback for action ${action}`);
+    throw new Exception(`Found no callback for action ${action}`);
   }
 
   public async allowsResource(
@@ -138,7 +143,7 @@ export default class Gate implements GateContract {
     if (policyData) {
       const policyMethodData = policyData.instance.$gates.get(action);
       if (!policyMethodData) {
-        throw new Error(
+        throw new Exception(
           `Found no policy gate named ${action} on policy ${policyData.name}`,
         );
       }
@@ -148,11 +153,13 @@ export default class Gate implements GateContract {
       }
       const result = await policyData.instance[action](user, ...params);
       if (typeof result !== 'boolean') {
-        throw new Error('Gates must return boolean values');
+        throw new Exception('Gates must return boolean values');
       }
       return result;
     }
-    throw new Error(`Found no policy for resource of type ${constructor.name}`);
+    throw new Exception(
+      `Found no policy for resource of type ${constructor.name}`,
+    );
   }
 }
 
@@ -183,8 +190,9 @@ class UserGate implements UserGateContractWithoutResource {
   ): Promise<void> {
     const isAllowed = await this.allows(action, ...args);
     if (!isAllowed) {
-      // TODO: throw standard Adonis error
-      throw new Error(`Unauthorized to "${action}"`);
+      throw new AuthorizationException(
+        `Authorization to "${action}" was denied`,
+      );
     }
   }
 
@@ -212,7 +220,9 @@ class UserGateWithResource implements UserGateContractWithResource {
   public async authorize(action: string, ...args: unknown[]): Promise<void> {
     const isAllowed = await this.allows(action, ...args);
     if (!isAllowed) {
-      throw new Error(`Unauthorized to "${action}"`);
+      throw new AuthorizationException(
+        `Authorization to "${action}" was denied`,
+      );
     }
   }
 }

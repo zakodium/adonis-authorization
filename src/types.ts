@@ -2,6 +2,11 @@
 
 declare module '@ioc:Adonis/Addons/Authorization' {
   import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
+  import { Exception } from '@poppinss/utils';
+
+  export class AuthorizationException extends Exception {
+    public constructor(message: string);
+  }
 
   export type User = Exclude<HttpContextContract['auth']['user'], undefined>;
   export type UserOrGuest = User | undefined;

@@ -1,3 +1,5 @@
+import { Exception } from '@poppinss/utils';
+
 import { GateOptions } from '@ioc:Adonis/Addons/Authorization';
 
 import { GateDefinition } from './GateDefinition';
@@ -11,7 +13,7 @@ export default function gateDecorator(options?: GateOptions) {
     descriptor: PropertyDescriptor,
   ) {
     if (typeof descriptor.value !== 'function') {
-      throw new Error('The gate decorator must be applied to a function');
+      throw new Exception('The gate decorator must be applied to a function');
     }
     if (!target.$gates) {
       target.$gates = new Map();

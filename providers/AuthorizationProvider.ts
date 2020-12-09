@@ -2,6 +2,7 @@ import { GateContract } from '@ioc:Adonis/Addons/Authorization';
 import { ApplicationContract } from '@ioc:Adonis/Core/Application';
 import { HttpContextConstructorContract } from '@ioc:Adonis/Core/HttpContext';
 
+import { AuthorizationException } from '../src/Exceptions';
 import Gate from '../src/Gate';
 import gateDecorator from '../src/gateDecorator';
 
@@ -11,7 +12,7 @@ export default class MongodbProvider {
 
   public register(): void {
     this.app.container.singleton('Adonis/Addons/Authorization', () => {
-      return { Gate: new Gate(), gate: gateDecorator };
+      return { Gate: new Gate(), gate: gateDecorator, AuthorizationException };
     });
   }
 
