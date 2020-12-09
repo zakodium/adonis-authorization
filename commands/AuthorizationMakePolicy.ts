@@ -20,7 +20,11 @@ export default class MongodbMakeMigration extends BaseCommand {
   public name: string;
 
   public async run(): Promise<void> {
-    const { name } = this;
+    let { name } = this;
+
+    if (name.toLowerCase().endsWith('policy')) {
+      name = name.slice(0, name.length - 6);
+    }
 
     const resource = `${name[0].toUpperCase()}${name.slice(1)}`;
     const policy = `${resource}Policy`;
