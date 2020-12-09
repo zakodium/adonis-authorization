@@ -5,7 +5,8 @@
   "main": "./lib/providers/AuthorizationProvider.js",
   "types": "./lib/src/types.d.ts",
   "files": [
-    "lib"
+    "lib",
+    "templates"
   ],
   "keywords": [
     "adonisjs",
@@ -20,9 +21,23 @@
     "providers": [
       "@zakodium/adonis-authorization"
     ],
+    "preloads": [
+      "./start/authorization"
+    ],
     "commands": [
       "@zakodium/adonis-authorization/lib/commands"
-    ]
+    ],
+    "templates": {
+      "basePath": "./templates",
+      "contracts": {
+        "src": "./authorization-contract.txt",
+        "dest": "authorization.ts"
+      },
+      "start": {
+        "src": "./authorization-preload.txt",
+        "dest": "authorization.ts"
+      }
+    }
   },
   "scripts": {
     "clean": "rimraf lib",
