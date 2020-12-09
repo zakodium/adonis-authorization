@@ -56,7 +56,6 @@
     "trailingComma": "all"
   },
   "peerDependencies": {
-    "@adonisjs/auth": "^5.0.0",
     "@adonisjs/core": "^5.0.4-preview-rc-2"
   },
   "devDependencies": {
