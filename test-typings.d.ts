@@ -8,6 +8,7 @@ declare module '@ioc:Adonis/Addons/Authorization' {
     'bad-return': ['undefined' | 'null' | 'number' | 'object'];
     'sync-throw': [];
     'async-throw': [];
+    'check-user': [];
   }
 }
 

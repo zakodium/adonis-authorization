@@ -100,19 +100,26 @@ export default class Gate implements GateContract {
     }
   }
 
-  public forUser(user: UserOrGuest): UserGateContractWithoutResource {
+  public forUser(
+    user: UserOrGuest | undefined,
+  ): UserGateContractWithoutResource {
     return new UserGate(user, this);
   }
 
   public async allowsAction<Action extends keyof GlobalActions>(
-    user: UserOrGuest,
+    user: UserOrGuest | undefined,
     action: Action,
     ...args: GlobalActions[Action]
   ): Promise<boolean> {
     const actionData = this.actions.get(action);
     if (actionData) {
-      if (!user && !actionData.definition.isGuestAllowed) {
-        return false;
+      if (!user) {
+        if (!actionData.definition.isGuestAllowed) {
+          return false;
+        } else {
+          // Normalize user so the callback is never called with `undefined`.
+          user = null;
+        }
       }
       const result = await actionData.callback(user, ...args);
       if (typeof result !== 'boolean') {
@@ -124,7 +131,7 @@ export default class Gate implements GateContract {
   }
 
   public async allowsResource(
-    user: UserOrGuest,
+    user: UserOrGuest | undefined,
     action: string,
     resource: any,
     ...params: unknown[]
@@ -154,8 +161,13 @@ export default class Gate implements GateContract {
         );
       }
 
-      if (!user && !policyMethodData.isGuestAllowed) {
-        return false;
+      if (!user) {
+        if (!policyMethodData.isGuestAllowed) {
+          return false;
+        } else {
+          // Normalize user so the callback is never called with `undefined`.
+          user = null;
+        }
       }
       const result = await policyData.instance[action](user, ...params);
       if (typeof result !== 'boolean') {
@@ -170,7 +182,10 @@ export default class Gate implements GateContract {
 }
 
 class UserGate implements UserGateContractWithoutResource {
-  public constructor(private user: UserOrGuest, private gate: Gate) {
+  public constructor(
+    private user: UserOrGuest | undefined,
+    private gate: Gate,
+  ) {
     this.gate = gate;
     this.user = user;
   }
@@ -215,7 +230,7 @@ class UserGate implements UserGateContractWithoutResource {
 
 class UserGateWithResource implements UserGateContractWithResource {
   public constructor(
-    private user: UserOrGuest,
+    private user: UserOrGuest | undefined,
     private gate: Gate,
     private resource: unknown,
   ) {}

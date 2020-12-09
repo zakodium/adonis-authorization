@@ -9,7 +9,7 @@ declare module '@ioc:Adonis/Addons/Authorization' {
   }
 
   export type User = Exclude<HttpContextContract['auth']['user'], undefined>;
-  export type UserOrGuest = User | undefined;
+  export type UserOrGuest = User | null;
 
   export type Constructor = new (...args: unknown[]) => unknown;
 
@@ -164,7 +164,7 @@ declare module '@ioc:Adonis/Addons/Authorization' {
 
     registerPolicies(policies: Array<[Constructor, Constructor]>): void;
 
-    forUser(user: UserOrGuest): UserGateContractWithoutResource;
+    forUser(user: UserOrGuest | undefined): UserGateContractWithoutResource;
   }
 
   export const Gate: GateContract;

@@ -196,13 +196,23 @@ describe('Gate.forUser', () => {
   gate.define('async-throw', async () => {
     throw new Error('async-throw error');
   });
+  gate.define(
+    'check-user',
+    async (user) => {
+      if (typeof user === 'undefined') {
+        throw new Error('user should be null');
+      }
+      return user === null;
+    },
+    { allowGuest: true },
+  );
 
   it('always-true: should allow any user', async () => {
     const userGate = gate.forUser(testUser1);
     expect(await userGate.allows('always-true')).toBe(true);
   });
   it('always-true: should not allow guests', async () => {
-    const userGate = gate.forUser(undefined);
+    const userGate = gate.forUser(null);
     expect(await userGate.allows('always-true')).toBe(false);
   });
   it('always-true: should not deny users', async () => {
@@ -214,11 +224,11 @@ describe('Gate.forUser', () => {
     await userGate.authorize('always-true');
   });
   it('always-true: should deny guests', async () => {
-    const userGate = gate.forUser(undefined);
+    const userGate = gate.forUser(null);
     expect(await userGate.denies('always-true')).toBe(true);
   });
   it('always-true: should not authorize guests', async () => {
-    const userGate = gate.forUser(undefined);
+    const userGate = gate.forUser(null);
     await expect(userGate.authorize('always-true')).rejects.toThrow(
       /E_AUTHORIZATION_DENIED: Authorization to "always-true" was denied/,
     );
@@ -231,21 +241,19 @@ describe('Gate.forUser', () => {
     expect(await gate.forUser(testUser2).allows('always-true-guest')).toBe(
       true,
     );
-    expect(await gate.forUser(undefined).allows('always-true-guest')).toBe(
-      true,
-    );
+    expect(await gate.forUser(null).allows('always-true-guest')).toBe(true);
   });
 
   it('always-false: should disallow everyone', async () => {
     expect(await gate.forUser(testUser1).allows('always-false')).toBe(false);
     expect(await gate.forUser(testUser2).allows('always-false')).toBe(false);
-    expect(await gate.forUser(undefined).allows('always-false')).toBe(false);
+    expect(await gate.forUser(null).allows('always-false')).toBe(false);
   });
 
   it('user-id: should pass the additional arguments', async () => {
     expect(await gate.forUser(testUser1).allows('user-id', 1)).toBe(true);
     expect(await gate.forUser(testUser2).allows('user-id', 1)).toBe(false);
-    expect(await gate.forUser(undefined).allows('user-id', 1)).toBe(false);
+    expect(await gate.forUser(null).allows('user-id', 1)).toBe(false);
     expect(await gate.forUser(testUser2).allows('user-id', 2)).toBe(true);
   });
 
@@ -256,9 +264,7 @@ describe('Gate.forUser', () => {
     expect(await gate.forUser(testUser1).allows('user-id-bool', 1, true)).toBe(
       true,
     );
-    expect(await gate.forUser(undefined).allows('user-id-bool', 1, true)).toBe(
-      true,
-    );
+    expect(await gate.forUser(null).allows('user-id-bool', 1, true)).toBe(true);
     expect(await gate.forUser(testUser2).allows('user-id-bool', 1, true)).toBe(
       false,
     );
@@ -291,6 +297,12 @@ describe('Gate.forUser', () => {
       ).rejects.toThrow(/Gates must return boolean values/);
     },
   );
+
+  it('check-user: should normalize the user before calling the gate callback', async () => {
+    expect(await gate.forUser(undefined).allows('check-user')).toBe(true);
+    expect(await gate.forUser(null).allows('check-user')).toBe(true);
+    expect(await gate.forUser(testUser1).allows('check-user')).toBe(false);
+  });
 });
 
 describe('Gate.forUser with resource', () => {
@@ -362,9 +374,7 @@ describe('Gate.forUser with resource', () => {
     expect(await gate.forUser(testUser2).for(Resource2).allows('test2')).toBe(
       true,
     );
-    expect(await gate.forUser(undefined).for(Resource2).allows('test2')).toBe(
-      false,
-    );
+    expect(await gate.forUser(null).for(Resource2).allows('test2')).toBe(false);
   });
 
   it('should not deny user but deny guest', async () => {
@@ -374,9 +384,7 @@ describe('Gate.forUser with resource', () => {
     expect(await gate.forUser(testUser2).for(Resource2).denies('test2')).toBe(
       false,
     );
-    expect(await gate.forUser(undefined).for(Resource2).denies('test2')).toBe(
-      true,
-    );
+    expect(await gate.forUser(null).for(Resource2).denies('test2')).toBe(true);
   });
 
   it('should deny everyone', async () => {
@@ -386,16 +394,16 @@ describe('Gate.forUser with resource', () => {
     expect(
       await gate.forUser(testUser2).for(Resource2).denies('testDeny'),
     ).toBe(true);
-    expect(
-      await gate.forUser(undefined).for(Resource2).denies('testDeny'),
-    ).toBe(true);
+    expect(await gate.forUser(null).for(Resource2).denies('testDeny')).toBe(
+      true,
+    );
   });
 
   it('should authorize user but not guest', async () => {
     await gate.forUser(testUser1).for(Resource2).authorize('test2');
     await gate.forUser(testUser2).for(Resource2).authorize('test2');
     await expect(
-      gate.forUser(undefined).for(Resource2).authorize('test2'),
+      gate.forUser(null).for(Resource2).authorize('test2'),
     ).rejects.toThrow(
       /E_AUTHORIZATION_DENIED: Authorization to "test2" was denied/,
     );
