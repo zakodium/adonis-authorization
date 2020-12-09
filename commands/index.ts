@@ -1,4 +1,5 @@
-// TODO: implement make:policy
-const commands: string[] = [];
+const commands: string[] = [
+  '@zakodium/adonis-authorization/lib/commands/AuthorizationMakePolicy.js',
+];
 
 export default commands;
