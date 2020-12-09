@@ -24,11 +24,6 @@ node ace invoke @zakodium/adonis-authorization
 
 TODO
 
-## Unimplemented for now while present in Laravel
-
-- [Gate Responses](https://laravel.com/docs/8.x/authorization#gate-responses)
-- [Intercepting Gate Checks](https://laravel.com/docs/8.x/authorization#intercepting-gate-checks)
-
 ## License
 
 [MIT](./LICENSE)
