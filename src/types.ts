@@ -11,7 +11,10 @@ declare module '@ioc:Adonis/Addons/Authorization' {
   export type User = Exclude<HttpContextContract['auth']['user'], undefined>;
   export type UserOrGuest = User | null;
 
-  export type Constructor = new (...args: unknown[]) => unknown;
+  export type Constructor = new (...args: any[]) => any;
+  type RemoveFirstFromTuple<T extends any[]> = T extends [any, ...infer Others]
+    ? Others
+    : [];
 
   export interface UserGateContractWithoutResource {
     /**
@@ -62,7 +65,7 @@ declare module '@ioc:Adonis/Addons/Authorization' {
      */
     allows(
       action: string /*: PolicyMethod*/,
-      ...args: unknown[]
+      ...args: any[]
     ): // ...args: RemoveFirstFromTuple<Parameters<InstanceType<PolicyConstructor>[PolicyMethod]>>
     Promise<boolean>;
 
@@ -72,7 +75,7 @@ declare module '@ioc:Adonis/Addons/Authorization' {
      */
     denies(
       action: string /*: PolicyMethod*/,
-      ...args: unknown[]
+      ...args: any[]
     ): //   ...args: RemoveFirstFromTuple<
     //   Parameters<InstanceType<PolicyConstructor>[PolicyMethod]>
     // >
@@ -84,7 +87,7 @@ declare module '@ioc:Adonis/Addons/Authorization' {
      */
     authorize(
       action: string /*: PolicyMethod*/,
-      ...args: unknown[]
+      ...args: any[]
     ): //   ...args: RemoveFirstFromTuple<
     //   Parameters<InstanceType<PolicyConstructor>[PolicyMethod]>
     // >
@@ -125,26 +128,54 @@ declare module '@ioc:Adonis/Addons/Authorization' {
   ) => boolean | Promise<boolean>;
 
   export interface GateOptionsWithGuest {
-    /**
-     * Whether guests (non-authenticated) users may be allowed to pass the gate.
-     * By default, this is `false` and the gate callback won't even be called.
-     * If `allowGuest` is `true`, the callback will be called with `null` as the
-     * user.
-     */
     allowGuest: true;
   }
 
   export interface GateOptions {
-    /**
-     * Whether guests (non-authenticated) users may be allowed to pass the gate.
-     * By default, this is `false` and the gate callback won't even be called.
-     * If `allowGuest` is `true`, the callback will be called with `null` as the
-     * user.
-     */
     allowGuest?: false;
   }
 
+  export type GateFn<T> = (
+    user: User,
+    ...args: T[]
+  ) => boolean | Promise<boolean>;
+
+  export type GateFnAllowsGuest<T> = (
+    user: UserOrGuest,
+    ...args: T[]
+  ) => boolean | Promise<boolean>;
+
+  export interface GateFnWithOptions {
+    allowGuest?: false;
+    gate: GateFn<any>;
+  }
+  export interface GateFnWithOptionsAllowingGuest {
+    allowGuest: true;
+    gate: GateFnAllowsGuest<any>;
+  }
+  export type GateFnOrGateFnWithOptions =
+    | GateFn<any>
+    | GateFnWithOptions
+    | GateFnWithOptionsAllowingGuest;
+  type GateParameters<
+    T extends GateFnOrGateFnWithOptions
+  > = T extends GateFn<any>
+    ? RemoveFirstFromTuple<Parameters<T>>
+    : T extends GateFnWithOptions | GateFnWithOptionsAllowingGuest
+    ? RemoveFirstFromTuple<Parameters<T['gate']>>
+    : never;
+
+  export type RegisteredActions<
+    T extends { [key: string]: GateFnOrGateFnWithOptions }
+  > = {
+    [key in keyof T]: GateParameters<T[key]>;
+  };
+
   export interface GateContract {
+    registerActions<T extends { [key: string]: GateFnOrGateFnWithOptions }>(
+      actions: T,
+    ): RegisteredActions<T>;
+
     /**
      * Define a new global gate.
      * @param action - Name of the action to protect

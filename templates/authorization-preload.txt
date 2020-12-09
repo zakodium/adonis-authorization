@@ -1,11 +1,12 @@
-import { Gate } from '@ioc:Adonis/Addons/Authorization';
+import { Gate /* , User */ } from '@ioc:Adonis/Addons/Authorization';
 
 Gate.registerPolicies([
   // Register your policies here
   // [Model, ModelPolicy],
 ]);
 
-// Define global actions here
-// Gate.define('some-action', () => {
-//   return false;
-// });
+export const actions = Gate.registerActions({
+  // 'some-action': (user: User) => {
+  //   return false;
+  // },
+});

@@ -11,6 +11,8 @@ import type {
   UserOrGuest,
   UserGateContractWithResource,
   UserGateContractWithoutResource,
+  RegisteredActions,
+  GateFnOrGateFnWithOptions,
 } from '@ioc:Adonis/Addons/Authorization';
 
 import { AuthorizationException } from './Exceptions';
@@ -29,6 +31,24 @@ export default class Gate implements GateContract {
     Constructor,
     { name: string; instance: InstanceType<any> }
   >();
+
+  public registerActions<
+    Actions extends {
+      [key: string]: GateFnOrGateFnWithOptions;
+    }
+  >(actions: Actions): RegisteredActions<Actions> {
+    for (const [key, value] of Object.entries(actions)) {
+      if (typeof value === 'function') {
+        // @ts-expect-error: This key is added to the types externally
+        this.define(key, value);
+      } else {
+        // @ts-expect-error: This key is added to the types externally
+        this.define(key, value.gate, value);
+      }
+    }
+    // @ts-expect-error: We pretend to return something but it's a lie.
+    return undefined;
+  }
 
   public define<Action extends keyof GlobalActions>(
     action: Action,

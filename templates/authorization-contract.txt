@@ -1,6 +1,4 @@
 declare module '@ioc:Adonis/Addons/Authorization' {
-  interface GlobalActions {
-    // Define action types here
-    // 'some-action': [];
-  }
+  type CustomActions = typeof import('../start/authorization').actions;
+  interface GlobalActions extends CustomActions {}
 }

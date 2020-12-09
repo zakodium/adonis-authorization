@@ -23,8 +23,10 @@ function noop() {
 describe('Gate.define', () => {
   it('should allow to define multiple gates', () => {
     const testGate = new Gate();
-    testGate.define('always-true', () => true);
-    testGate.define('always-false', () => false);
+    testGate.registerActions({
+      'always-true': () => true,
+      'always-false': () => false,
+    });
   });
 
   it('should throw if the same action is reused', () => {
@@ -158,23 +160,24 @@ describe('Gate.registerPolicies', () => {
 
 describe('Gate.forUser', () => {
   const gate = new Gate();
-
-  gate.define('always-true', () => true);
-  gate.define('always-true-guest', () => true, { allowGuest: true });
-  gate.define('always-false', () => false);
-  gate.define('user-id', async (user, userId) => {
-    await wait(1);
-    return user.id === userId;
-  });
-  gate.define(
-    'user-id-bool',
-    async (user, userId, other) => {
-      if (!other) return false;
-      if (!user) return true;
+  gate.registerActions({
+    'always-true': () => true,
+    'always-true-guest': { allowGuest: true, gate: () => true },
+    'always-false': () => false,
+    'user-id': async (user, userId: number) => {
+      await wait(1);
       return user.id === userId;
     },
-    { allowGuest: true },
-  );
+    'user-id-bool': {
+      allowGuest: true,
+      async gate(user, userId: number, other: boolean) {
+        if (!other) return false;
+        if (!user) return true;
+        return user.id === userId;
+      },
+    },
+  });
+
   // @ts-expect-error
   gate.define('bad-return', (user, type) => {
     switch (type) {
