@@ -72,11 +72,11 @@ declare module '@ioc:Adonis/Addons/Authorization' {
      */
     denies(
       action: string /*: PolicyMethod*/,
-      args: unknown[],
-      //   ...args: RemoveFirstFromTuple<
-      //   Parameters<InstanceType<PolicyConstructor>[PolicyMethod]>
-      // >
-    ): Promise<boolean>;
+      ...args: unknown[]
+    ): //   ...args: RemoveFirstFromTuple<
+    //   Parameters<InstanceType<PolicyConstructor>[PolicyMethod]>
+    // >
+    Promise<boolean>;
 
     // <PolicyMethod extends keyof InstanceType<PolicyConstructor>>
     /**
@@ -84,11 +84,11 @@ declare module '@ioc:Adonis/Addons/Authorization' {
      */
     authorize(
       action: string /*: PolicyMethod*/,
-      args: unknown[],
-      //   ...args: RemoveFirstFromTuple<
-      //   Parameters<InstanceType<PolicyConstructor>[PolicyMethod]>
-      // >
-    ): Promise<void>;
+      ...args: unknown[]
+    ): //   ...args: RemoveFirstFromTuple<
+    //   Parameters<InstanceType<PolicyConstructor>[PolicyMethod]>
+    // >
+    Promise<void>;
 
     // TODO: any, none, all?
   }
@@ -104,6 +104,7 @@ declare module '@ioc:Adonis/Addons/Authorization' {
   >(
     target: TTarget,
     property: TKey,
+    descriptor: PropertyDescriptor,
   ) => void;
 
   export function gate(options?: { allowGuest?: false }): TypedDecorator<User>;

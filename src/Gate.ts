@@ -59,7 +59,7 @@ export default class Gate implements GateContract {
 
     if (this.actions.has(action)) {
       throw new Exception(
-        `a gate is already defined for the action "${action}"`,
+        `A gate is already defined for the action "${action}"`,
       );
     }
 
@@ -89,7 +89,7 @@ export default class Gate implements GateContract {
 
       if (this.policies.has(Resource)) {
         throw new Exception(
-          `a policy is already defined for the resource "${Resource.name}"`,
+          `A policy is already defined for the resource "${Resource.name}"`,
         );
       }
 
@@ -120,7 +120,7 @@ export default class Gate implements GateContract {
       }
       return result;
     }
-    throw new Exception(`Found no callback for action ${action}`);
+    throw new Exception(`Found no callback for action "${action}"`);
   }
 
   public async allowsResource(
@@ -141,10 +141,16 @@ export default class Gate implements GateContract {
 
     const policyData = this.policies.get(constructor);
     if (policyData) {
-      const policyMethodData = policyData.instance.$gates.get(action);
+      const policyInstance = policyData.instance;
+      if (!policyInstance.$gates) {
+        throw new Exception(
+          `Policy "${policyData.name}" has no gates. Use the @gate decorator to define gate methods`,
+        );
+      }
+      const policyMethodData = policyInstance.$gates.get(action);
       if (!policyMethodData) {
         throw new Exception(
-          `Found no policy gate named ${action} on policy ${policyData.name}`,
+          `Found no policy gate named "${action}" on policy "${policyData.name}"`,
         );
       }
 
@@ -158,7 +164,7 @@ export default class Gate implements GateContract {
       return result;
     }
     throw new Exception(
-      `Found no policy for resource of type ${constructor.name}`,
+      `Found no policy for resource of type "${constructor.name}"`,
     );
   }
 }
@@ -197,6 +203,12 @@ class UserGate implements UserGateContractWithoutResource {
   }
 
   public for(resource: unknown) {
+    if (
+      typeof resource !== 'function' &&
+      (typeof resource !== 'object' || resource === null)
+    ) {
+      throw new Exception('resource must be an object or constructor');
+    }
     return new UserGateWithResource(this.user, this.gate, resource);
   }
 }

@@ -5,6 +5,9 @@ declare module '@ioc:Adonis/Addons/Authorization' {
     'always-false': [];
     'user-id': [number];
     'user-id-bool': [number, boolean];
+    'bad-return': ['undefined' | 'null' | 'number' | 'object'];
+    'sync-throw': [];
+    'async-throw': [];
   }
 }
 
